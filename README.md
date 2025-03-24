@@ -29,31 +29,24 @@ Sau khi chạy, mở trình duyệt và truy cập: **`http://localhost:8080`**
 ## 🔧 2. Công Nghệ Sử Dụng
 - **Backend**: Spring Boot
 - **Frontend**: Thymeleaf + Bootstrap
-- **Database**: MySQL (hoặc SQLite)
+- **Database**: MySQL
 - **Authentication**: Spring Security
 
 ---
 
 ## 📌 3. Chức Năng Chính
-- 🛍 **Xem danh sách sản phẩm**
+- 🛍 **Xem danh sách danh mục, sản phẩm**
 - 🛒 **Thêm sản phẩm vào giỏ hàng**
-- 📝 **Đặt hàng**
+- 📝 **Đặt hàng, huỷ đặt hàng**
 - 🔑 **Đăng ký & Đăng nhập** (Admin/User)
 
 ---
 
-## 📷 4. Screenshot (Nếu Có)
-_Thêm ảnh giao diện của dự án vào đây để người xem dễ hình dung._
-
----
-
-## ✍ 5. Tác Giả
-👤 **Nguyễn Vũ**  
-📧 Email: _nguyenvu@example.com_  
+## ✍ 4. Tác Giả
+👤 **Nguyễn Phạm Hoàng Vũ**  
+📧 Email: nguyenphamhoangvu852004@gmail.com  
 💻 GitHub: [@nguyenphamhoangvu852004](https://github.com/nguyenphamhoangvu852004)
 
 ---
-<!-- 
-## 📜 6. License
-Dự án này được phát hành dưới giấy phép MIT. -->
+
 
