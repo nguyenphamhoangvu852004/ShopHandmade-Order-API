@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="https://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{default/layout}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi Tiết Sản Phẩm</title>
+    <link rel="stylesheet" href="/bootstrap-5.3.3-dist/css/bootstrap.min.css">
+    <style>
+        .small-image {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            cursor: pointer;
+            transition: transform 0.2s ease-in-out;
+        }
+        .small-image:hover {
+            transform: scale(1.1);
+        }
+        .selected {
+            border: 2px solid blue !important;
+        }
+    </style>
+</head>
+<body>
+<div layout:fragment="main-content">
+    <div class="container d-flex justify-content-center align-items-center vh-100">
+        <div class="card shadow-lg p-4 w-75">
+            <div>
+                <a href="/products">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-arrow-left mb-3" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8"/>
+                    </svg>
+                </a>
+            </div>
+
+            <div class="row g-4 align-items-center">
+                <div class="col-md-6 text-center">
+                    <!-- Ảnh chính -->
+                    <img id="mainImage"
+                         th:src="${product.images != null and product.images.size() > 0 ? product.images[0].src : '/default-image.jpg'}"
+                         class="img-fluid rounded shadow mb-3 w-100"
+                         alt="Product Image">
+
+                    <!-- Ảnh nhỏ -->
+                    <div class="d-flex justify-content-center">
+                        <th:block th:if="${product.images != null and product.images.size() > 1}">
+                            <th:block th:each="image, iter : ${product.images}">
+                                <img th:src="${image.src}"
+                                     th:attr="data-src=${image.src}"
+                                     class="img-thumbnail mx-1 small-image"
+                                     th:classappend="${iter.index == 0} ? 'selected' : ''"
+                                     alt="Product Thumbnail">
+                            </th:block>
+                        </th:block>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <h3 class="card-title fw-bold text-uppercase" th:text="${product.name}"></h3>
+                    <p class="card-text text-muted" th:text="|ID: ${product.id}|"></p>
+                    <p class="fw-bold">Mô tả:</p>
+                    <p class="card-text" th:text="${product.description}"></p>
+                    <p class="h4 text-danger fw-bold" th:text="|Giá: ${#numbers.formatInteger(product.price, 0)} VNĐ|"></p>
+                    <a th:href="@{/products}" class="btn btn-primary mt-3">Quay lại</a>
+                </div>
+            </div>
+        </div>
+    </div>
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+            const mainImage = document.getElementById("mainImage");
+            const smallImages = document.querySelectorAll(".small-image");
+
+            if (!mainImage || smallImages.length === 0) return;
+
+            smallImages.forEach(img => {
+            img.addEventListener("click", function () {
+            const newSrc = this.getAttribute("data-src");
+            if (newSrc) {
+            mainImage.src = newSrc;
+            document.querySelectorAll(".small-image").forEach(img => img.classList.remove("selected"));
+            this.classList.add("selected");
+        }
+        });
+        });
+        });
+    </script>
+
+</div>
+<script src="/bootstrap-5.3.3-dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

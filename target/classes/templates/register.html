@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="https://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{default/layout}">
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/bootstrap-5.3.3-dist/css/bootstrap.min.css">
+    <title>Register</title>
+</head>
+<body>
+<div  layout:fragment="main-content">
+    <div class=" container mt-3 mb-3 p-3" style="width: 400px;border-radius: 15px; border: black solid 1px">
+
+      <form action="/action_page.php">
+        <div class="mb-3 mt-3">
+          <label for="email" class="form-label">Email:</label>
+          <input type="email" class="form-control" id="email" placeholder="Enter email" name="email">
+        </div>
+        <div class="mb-3">
+          <label for="pwd" class="form-label">Password:</label>
+          <input type="password" class="form-control" id="pwd" placeholder="Enter password" name="pswd">
+        </div>
+        <div class="mb-3">
+          <label for="pwd" class="form-label">Confirm Password:</label>
+          <input type="password" class="form-control" id="cfpwd" placeholder="Enter password" name="cfpswd">
+        </div>
+        <!--  <div class="form-check mb-3">
+            <label class="form-check-label">
+              <input class="form-check-input" type="checkbox" name="remember"> Remember me
+            </label>
+          </div>-->
+        <button type="submit" class="btn btn-primary">Submit</button>
+      </form>
+  </div>
+
+</div>
+</body>
+</html>

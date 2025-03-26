@@ -13,7 +13,7 @@ public class CategoryService {
 
    @ModelAttribute("categories")
    public List<Map<String,Object>> getCategories(){
-       String url = "http://localhost:8080/api/category";
+       String url = "http://localhost:8081/api/v1/category";
        return restTemplate.getForObject(url,List.class);
    }
 }

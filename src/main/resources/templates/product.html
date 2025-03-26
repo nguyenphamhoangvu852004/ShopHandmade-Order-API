@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="https://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{default/layout}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/bootstrap-5.3.3-dist/css/bootstrap.min.css">
+    <title>Products</title>
+</head>
+<body>
+<div layout:fragment="main-content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-3 text-center">
+                <div class="dropdown">
+                    <button class="btn btn-primary dropdown-toggle" type="button"
+                            id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                        Danh mục sản phẩm
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <li th:each="category : ${categories}">
+                            <a class="dropdown-item text-decoration-none text-black" href="#">
+                                <span th:text="${category.get('name')}"></span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="col-md-9 text-md-start">
+                <!-- Cột sản phẩm -->
+                <div class="col-md-9">
+                    <div class="row">
+                        <!-- Lặp qua danh sách sản phẩm -->
+                        <div class="col-md-3 mb-4" th:each="product : ${products}">
+                            <div class="card">
+                                <img th:src="${product.images[0].src}" class="card-img-top" alt="Product Image">
+                                <div class="card-body">
+                                    <h5 class="card-title" th:text="${product.name}"></h5>
+                                    <p class="card-text" th:text="${product.id}"></p>
+                                    <p class="card-text" th:text="${product.description}"></p>
+                                   <strong>
+                                       <p class="card-text" th:text="${product.price}"></p>
+                                   </strong>
+                                    <a th:href="@{/products/detail/{id}(id=${product.id})}" class="btn btn-primary">Chi tiết</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="/bootstrap-5.3.3-dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
