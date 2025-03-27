@@ -2,6 +2,7 @@ package com.example.ShopHandmade.service.order;
 
 import com.example.ShopHandmade.dto.order.GetAllOrderByAccountIdOutputDTO;
 import com.example.ShopHandmade.dto.orderItem.GetAllOrderItemOutputDTO;
+import com.example.ShopHandmade.dto.product.GetProductInfoOutputDTO;
 import com.example.ShopHandmade.entity.OrderEntity;
 import com.example.ShopHandmade.entity.OrderItemEntity;
 import com.example.ShopHandmade.repository.order.IOrderRepository;
@@ -10,7 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import lombok.*;
 import java.util.ArrayList;
@@ -19,7 +22,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class OrderServiceImp implements IOrderService {
-
+    private RestTemplate restTemplate = new RestTemplate();
     private IOrderRepository orderRepository;
     private OrderRepositoryCus orderRepositoryCus;
 
@@ -35,11 +38,20 @@ public class OrderServiceImp implements IOrderService {
 
             List<GetAllOrderByAccountIdOutputDTO> listOrderDTO = orderPage.getContent().stream().map(order -> {
                 List<GetAllOrderItemOutputDTO> listOrderItemDTO = order.getListOrderItems().stream()
-                        .map(item -> GetAllOrderItemOutputDTO.builder()
-                                .id(item.getId())
-                                .productId(item.getProductId())
-                                .quantity(item.getQuantity())
-                                .build())
+                        .map(item -> {
+
+                            String url = "http://localhost:8081/api/v1/product";
+
+                            ResponseEntity<GetProductInfoOutputDTO> response = restTemplate
+                                    .getForEntity(url + "/" + item.getProductId(), GetProductInfoOutputDTO.class);
+                            GetProductInfoOutputDTO product = response.getBody();
+                            System.out.println(product.toString());
+                            return GetAllOrderItemOutputDTO.builder()
+                                    .id(item.getId())
+                                    .product(product)
+                                    .quantity(item.getQuantity())
+                                    .build();
+                        })
                         .collect(Collectors.toList());
 
                 return GetAllOrderByAccountIdOutputDTO.builder()

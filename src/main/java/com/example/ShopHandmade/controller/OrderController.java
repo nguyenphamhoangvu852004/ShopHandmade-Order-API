@@ -1,5 +1,6 @@
 package com.example.ShopHandmade.controller;
 
+import com.example.ShopHandmade.dto.order.CreateOrderInputDTO;
 import com.example.ShopHandmade.dto.order.GetAllOrderByAccountIdOutputDTO;
 import com.example.ShopHandmade.service.order.IOrderService;
 
@@ -14,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
 @RequestMapping("")
@@ -34,6 +37,15 @@ public class OrderController {
         Pageable pageable = PageRequest.of(page, size);
         Page<GetAllOrderByAccountIdOutputDTO> listOrder = this.orderService.getAllOrdersByAccountId(id, pageable);
         return ResponseEntity.ok(listOrder);
+    }
+
+    @PostMapping("/api/order/{accountId}")
+    public ResponseEntity<String> createOrder(@PathVariable("accountId") short accountId,
+            @RequestBody CreateOrderInputDTO createOrderInputDTO) {
+        System.out.println("accountId: " + accountId);
+        System.out.println(createOrderInputDTO.toString());
+
+        return ResponseEntity.ok("Created successfully");
     }
 
 }
