@@ -14,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.beans.factory.annotation.Value;
 
 import lombok.*;
 import java.util.ArrayList;
@@ -22,6 +23,9 @@ import java.util.stream.Collectors;
 
 @Service
 public class OrderServiceImp implements IOrderService {
+
+    @Value("${product.service.url}")
+    private String productServiceUrl;
     private RestTemplate restTemplate = new RestTemplate();
     private IOrderRepository orderRepository;
     private OrderRepositoryCus orderRepositoryCus;
@@ -39,13 +43,10 @@ public class OrderServiceImp implements IOrderService {
             List<GetAllOrderByAccountIdOutputDTO> listOrderDTO = orderPage.getContent().stream().map(order -> {
                 List<GetAllOrderItemOutputDTO> listOrderItemDTO = order.getListOrderItems().stream()
                         .map(item -> {
-
-                            String url = "http://localhost:8081/api/v1/product";
-
                             ResponseEntity<GetProductInfoOutputDTO> response = restTemplate
-                                    .getForEntity(url + "/" + item.getProductId(), GetProductInfoOutputDTO.class);
+                                    .getForEntity(productServiceUrl + "/" + item.getProductId(),
+                                            GetProductInfoOutputDTO.class);
                             GetProductInfoOutputDTO product = response.getBody();
-                            System.out.println(product.toString());
                             return GetAllOrderItemOutputDTO.builder()
                                     .id(item.getId())
                                     .product(product)
