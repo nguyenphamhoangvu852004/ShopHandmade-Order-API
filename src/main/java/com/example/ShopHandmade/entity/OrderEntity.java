@@ -33,4 +33,12 @@ public class OrderEntity {
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private List<OrderItemEntity> listOrderItems;
+    
+    public static class ORDER_STATUS {
+        public static final String PENDING = "PENDING";
+        public static final String DELIVERED = "DELIVERED";
+        public static final String CANCELLED = "CANCELLED";
+    }
 }
+
+

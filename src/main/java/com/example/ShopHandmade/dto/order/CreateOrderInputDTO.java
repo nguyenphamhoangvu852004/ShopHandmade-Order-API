@@ -14,5 +14,4 @@ import lombok.*;
 @ToString
 public class CreateOrderInputDTO {
     private List<CreateOrderItemInputDTO> listOrderItem;
-
 }

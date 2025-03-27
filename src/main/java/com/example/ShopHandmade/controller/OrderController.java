@@ -42,10 +42,12 @@ public class OrderController {
     @PostMapping("/api/order/{accountId}")
     public ResponseEntity<String> createOrder(@PathVariable("accountId") short accountId,
             @RequestBody CreateOrderInputDTO createOrderInputDTO) {
-        System.out.println("accountId: " + accountId);
-        System.out.println(createOrderInputDTO.toString());
+        String result = this.orderService.createOrder(accountId, createOrderInputDTO);
+        if (result.equals("Created")) {
+            return ResponseEntity.ok(result);
+        }
+        return ResponseEntity.badRequest().body(result);
 
-        return ResponseEntity.ok("Created successfully");
     }
 
 }

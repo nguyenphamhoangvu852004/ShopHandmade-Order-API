@@ -1,13 +1,15 @@
 package com.example.ShopHandmade.service.order;
 
+import com.example.ShopHandmade.dto.order.CreateOrderInputDTO;
 import com.example.ShopHandmade.dto.order.GetAllOrderByAccountIdOutputDTO;
+import com.example.ShopHandmade.dto.orderItem.CreateOrderItemInputDTO;
 import com.example.ShopHandmade.dto.orderItem.GetAllOrderItemOutputDTO;
 import com.example.ShopHandmade.dto.product.GetProductInfoOutputDTO;
 import com.example.ShopHandmade.entity.OrderEntity;
 import com.example.ShopHandmade.entity.OrderItemEntity;
+import com.example.ShopHandmade.entity.OrderEntity.ORDER_STATUS;
 import com.example.ShopHandmade.repository.order.IOrderRepository;
 import com.example.ShopHandmade.repository.order.OrderRepositoryCus;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -16,7 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.beans.factory.annotation.Value;
 
-import lombok.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -93,15 +95,40 @@ public class OrderServiceImp implements IOrderService {
     }
 
     @Override
-    public OrderEntity createOrder(OrderEntity order) {
+    public String createOrder(short accountId, CreateOrderInputDTO order) {
         try {
-            if (isOrderExist(order.getId()))
-                throw new Exception("Order already exist");
-            OrderEntity newOrder = this.orderRepository.save(order);
-            return newOrder;
+            List<CreateOrderItemInputDTO> listOrderItemInputDTO = order.getListOrderItem();
+            List<OrderItemEntity> listOrderItemEntity = new ArrayList<>();
+
+            OrderEntity newOrder = OrderEntity.builder()
+                    .accountId(accountId)
+                    .orderDate(LocalDateTime.now())
+                    .status(ORDER_STATUS.PENDING)
+                    .build();
+
+            for (CreateOrderItemInputDTO item : listOrderItemInputDTO) {
+                String url = productServiceUrl + "/" + item.getProductId();
+                ResponseEntity<GetProductInfoOutputDTO> response = restTemplate.getForEntity(url,
+                        GetProductInfoOutputDTO.class);
+
+                if (response.getBody() == null) {
+                    return "Product not found: " + item.getProductId();
+                }
+
+                listOrderItemEntity.add(OrderItemEntity.builder()
+                        .productId(item.getProductId())
+                        .quantity(item.getQuantity())
+                        .order(newOrder)
+                        .build());
+            }
+
+            newOrder.setListOrderItems(listOrderItemEntity);
+
+            this.orderRepository.save(newOrder);
+
+            return "Created";
         } catch (Exception e) {
-            System.out.println(e.getMessage());
-            return null;
+            return "Failed";
         }
     }
 
