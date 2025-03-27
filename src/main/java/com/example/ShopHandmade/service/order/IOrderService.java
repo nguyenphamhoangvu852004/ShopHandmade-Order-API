@@ -23,4 +23,6 @@ public interface IOrderService {
     void deleteOrder(short orderId);
 
     boolean isOrderExist(short orderId);
+
+    String updateStatusByOrderId(short orderId, String status);
 }

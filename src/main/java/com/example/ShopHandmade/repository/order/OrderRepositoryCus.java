@@ -4,7 +4,6 @@ import com.example.ShopHandmade.entity.OrderEntity;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -36,6 +35,21 @@ public class OrderRepositoryCus {
                 .getSingleResult();
 
         return new PageImpl<>(listOrder, pageable, totalOrders);
+    }
+
+    @Transactional
+    public String updateStatusByOrderId(short orderId, String status) {
+        StringBuilder sql = new StringBuilder();
+        sql.append("UPDATE OrderEntity o SET o.status = :status WHERE o.id = :orderId");
+
+        int result = em.createQuery(sql.toString()).setParameter("orderId", orderId).setParameter("status", status)
+                .executeUpdate();
+
+        if (result > 0) {
+            return "Update status order success";
+        } else {
+            throw new RuntimeException("Update status order failed");
+        }
     }
 
 }

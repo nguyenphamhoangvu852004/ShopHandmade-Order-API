@@ -157,4 +157,17 @@ public class OrderServiceImp implements IOrderService {
         return this.orderRepository.existsById(orderId);
     }
 
+    @Override
+    public String updateStatusByOrderId(short orderId, String status) {
+        try {
+            boolean isExist = this.orderRepository.existsById(orderId);
+            if (!isExist) {
+                return "Order not found";
+            }
+            return this.orderRepositoryCus.updateStatusByOrderId(orderId, status);
+        } catch (Exception e) {
+            return e.getMessage();
+        }
+    }
+
 }
