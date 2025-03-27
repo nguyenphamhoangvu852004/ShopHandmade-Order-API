@@ -1,6 +1,5 @@
 package com.example.ShopHandmade.entity;
 
-
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
@@ -28,10 +27,10 @@ public class OrderEntity {
     @Column(name = "order_date_time", columnDefinition = "DATETIME", updatable = false, nullable = false)
     private LocalDateTime orderDate;
 
-    @Column(name = "status",  columnDefinition = "VARCHAR(10)",updatable = true, nullable = false)
+    @Column(name = "status", columnDefinition = "VARCHAR(10)", updatable = true, nullable = false)
     private String status;
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private List<OrderItemEntity> listOrderItems;
 }

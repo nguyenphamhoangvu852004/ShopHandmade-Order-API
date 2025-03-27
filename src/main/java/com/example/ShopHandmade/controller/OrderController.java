@@ -2,7 +2,8 @@ package com.example.ShopHandmade.controller;
 
 import com.example.ShopHandmade.dto.order.GetAllOrderByAccountIdOutputDTO;
 import com.example.ShopHandmade.service.order.IOrderService;
-import org.springframework.stereotype.Controller;
+
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -10,7 +11,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-@Controller
 @RestController
 @RequestMapping("")
 public class OrderController {
@@ -22,10 +22,11 @@ public class OrderController {
     }
 
     @GetMapping("/api/order/{accountId}")
-    public String getAllOrderByAccountId(@PathVariable("accountId") short accountId){
+    public ResponseEntity<List<GetAllOrderByAccountIdOutputDTO>> getAllOrderByAccountId(
+            @PathVariable("accountId") short accountId) {
         Short id = accountId;
         List<GetAllOrderByAccountIdOutputDTO> listOrder = this.orderService.getAllOrdersByAccountId(id);
-        return listOrder.toString();
+        return ResponseEntity.ok(listOrder);
     }
 
 }

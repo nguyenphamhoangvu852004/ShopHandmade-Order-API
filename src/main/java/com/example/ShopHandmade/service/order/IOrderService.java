@@ -2,7 +2,6 @@ package com.example.ShopHandmade.service.order;
 
 import com.example.ShopHandmade.dto.order.GetAllOrderByAccountIdOutputDTO;
 import com.example.ShopHandmade.entity.OrderEntity;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 

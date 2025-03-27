@@ -15,7 +15,6 @@ public class OrderRepositoryCus{
     public OrderRepositoryCus(EntityManager em) {
         this.em = em;
     }
-
     @Transactional
     public List<OrderEntity> getAllOrdersByAccountId(short accountId) {
         StringBuilder sql = new StringBuilder();

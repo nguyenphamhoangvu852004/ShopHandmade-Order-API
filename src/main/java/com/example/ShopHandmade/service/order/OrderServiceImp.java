@@ -1,18 +1,20 @@
 package com.example.ShopHandmade.service.order;
 
-
 import com.example.ShopHandmade.dto.order.GetAllOrderByAccountIdOutputDTO;
+import com.example.ShopHandmade.dto.orderItem.GetAllOrderItemOutputDTO;
 import com.example.ShopHandmade.entity.OrderEntity;
+import com.example.ShopHandmade.entity.OrderItemEntity;
 import com.example.ShopHandmade.repository.order.IOrderRepository;
 import com.example.ShopHandmade.repository.order.OrderRepositoryCus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import lombok.*;
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class OrderServiceImp implements IOrderService{
+public class OrderServiceImp implements IOrderService {
 
     private IOrderRepository orderRepository;
     private OrderRepositoryCus orderRepositoryCus;
@@ -22,25 +24,38 @@ public class OrderServiceImp implements IOrderService{
         this.orderRepositoryCus = orderRepositoryCus;
     }
 
-
     @Override
     public List<GetAllOrderByAccountIdOutputDTO> getAllOrdersByAccountId(short userId) {
-        // gọi api bên account service để check xem có tồn tại account đó hay kooong ? neu khong thi return list rong
+        // gọi api bên account service để check xem có tồn tại account đó hay kooong ?
+        // neu khong thi return list rong
 
         // thực hiện gọi database
         try {
+
             List<OrderEntity> orders = this.orderRepositoryCus.getAllOrdersByAccountId(userId);
             List<GetAllOrderByAccountIdOutputDTO> listOrder = new ArrayList<>();
             for (OrderEntity order : orders) {
+                List<GetAllOrderItemOutputDTO> listOrderItemOutputDto = new ArrayList<>();
+                for (OrderItemEntity orderItem : order.getListOrderItems()) {
+                    GetAllOrderItemOutputDTO orderItemDTO = GetAllOrderItemOutputDTO.builder()
+                            .id(orderItem.getId())
+                            .productId(orderItem.getProductId())
+                            .quantity(orderItem.getQuantity())
+                            .build();
+                            listOrderItemOutputDto.add(orderItemDTO);
+                }
+
                 GetAllOrderByAccountIdOutputDTO orderDTO = GetAllOrderByAccountIdOutputDTO.builder()
                         .id(order.getId())
                         .orderDate(order.getOrderDate())
                         .status(order.getStatus())
+                        .listOrderItems(listOrderItemOutputDto)
                         .build();
                 listOrder.add(orderDTO);
+
             }
             return listOrder;
-        }catch (Exception e){
+        } catch (Exception e) {
             System.out.println(e.getMessage());
             return new ArrayList<>();
         }
@@ -51,7 +66,7 @@ public class OrderServiceImp implements IOrderService{
         try {
             List<OrderEntity> orders = this.orderRepository.findAll();
             return orders;
-        }catch (Exception e){
+        } catch (Exception e) {
             System.out.println(e.getMessage());
             return new ArrayList<>();
         }
@@ -62,7 +77,7 @@ public class OrderServiceImp implements IOrderService{
         try {
             OrderEntity order = this.orderRepository.findById(orderId).get();
             return order;
-        }catch (Exception e){
+        } catch (Exception e) {
             System.out.println(e.getMessage());
             return null;
         }
@@ -71,10 +86,11 @@ public class OrderServiceImp implements IOrderService{
     @Override
     public OrderEntity createOrder(OrderEntity order) {
         try {
-            if (isOrderExist(order.getId())) throw new Exception("Order already exist");
+            if (isOrderExist(order.getId()))
+                throw new Exception("Order already exist");
             OrderEntity newOrder = this.orderRepository.save(order);
             return newOrder;
-        }catch (Exception e){
+        } catch (Exception e) {
             System.out.println(e.getMessage());
             return null;
         }
@@ -85,7 +101,7 @@ public class OrderServiceImp implements IOrderService{
         try {
             OrderEntity newOrder = this.orderRepository.save(order);
             return newOrder;
-        }catch (Exception e){
+        } catch (Exception e) {
             System.out.println(e.getMessage());
             return null;
         }
@@ -95,7 +111,7 @@ public class OrderServiceImp implements IOrderService{
     public void deleteOrder(short orderId) {
         try {
             this.orderRepository.deleteById(orderId);
-        }catch (Exception e){
+        } catch (Exception e) {
             System.out.println(e.getMessage());
         }
     }
@@ -104,6 +120,5 @@ public class OrderServiceImp implements IOrderService{
     public boolean isOrderExist(short orderId) {
         return this.orderRepository.existsById(orderId);
     }
-
 
 }
