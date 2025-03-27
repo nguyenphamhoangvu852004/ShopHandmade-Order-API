@@ -5,8 +5,11 @@ import com.example.ShopHandmade.entity.OrderEntity;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 public interface IOrderService {
-    List<GetAllOrderByAccountIdOutputDTO> getAllOrdersByAccountId(short accountId);
+    Page<GetAllOrderByAccountIdOutputDTO> getAllOrdersByAccountId(short accountId, Pageable pageable);
     List<OrderEntity> getAllOrders();
     OrderEntity getOrderById(short orderId);
     OrderEntity createOrder(OrderEntity order);

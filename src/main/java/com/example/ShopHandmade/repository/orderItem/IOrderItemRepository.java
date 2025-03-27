@@ -1,6 +1,5 @@
 package com.example.ShopHandmade.repository.orderItem;
 
-import com.example.ShopHandmade.entity.OrderEntity;
 import com.example.ShopHandmade.entity.OrderItemEntity;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;

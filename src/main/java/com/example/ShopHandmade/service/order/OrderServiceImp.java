@@ -7,11 +7,15 @@ import com.example.ShopHandmade.entity.OrderItemEntity;
 import com.example.ShopHandmade.repository.order.IOrderRepository;
 import com.example.ShopHandmade.repository.order.OrderRepositoryCus;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import lombok.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class OrderServiceImp implements IOrderService {
@@ -25,39 +29,31 @@ public class OrderServiceImp implements IOrderService {
     }
 
     @Override
-    public List<GetAllOrderByAccountIdOutputDTO> getAllOrdersByAccountId(short userId) {
-        // gọi api bên account service để check xem có tồn tại account đó hay kooong ?
-        // neu khong thi return list rong
-
-        // thực hiện gọi database
+    public Page<GetAllOrderByAccountIdOutputDTO> getAllOrdersByAccountId(short userId, Pageable pageable) {
         try {
+            Page<OrderEntity> orderPage = this.orderRepositoryCus.getAllOrdersByAccountId(userId, pageable);
 
-            List<OrderEntity> orders = this.orderRepositoryCus.getAllOrdersByAccountId(userId);
-            List<GetAllOrderByAccountIdOutputDTO> listOrder = new ArrayList<>();
-            for (OrderEntity order : orders) {
-                List<GetAllOrderItemOutputDTO> listOrderItemOutputDto = new ArrayList<>();
-                for (OrderItemEntity orderItem : order.getListOrderItems()) {
-                    GetAllOrderItemOutputDTO orderItemDTO = GetAllOrderItemOutputDTO.builder()
-                            .id(orderItem.getId())
-                            .productId(orderItem.getProductId())
-                            .quantity(orderItem.getQuantity())
-                            .build();
-                            listOrderItemOutputDto.add(orderItemDTO);
-                }
+            List<GetAllOrderByAccountIdOutputDTO> listOrderDTO = orderPage.getContent().stream().map(order -> {
+                List<GetAllOrderItemOutputDTO> listOrderItemDTO = order.getListOrderItems().stream()
+                        .map(item -> GetAllOrderItemOutputDTO.builder()
+                                .id(item.getId())
+                                .productId(item.getProductId())
+                                .quantity(item.getQuantity())
+                                .build())
+                        .collect(Collectors.toList());
 
-                GetAllOrderByAccountIdOutputDTO orderDTO = GetAllOrderByAccountIdOutputDTO.builder()
+                return GetAllOrderByAccountIdOutputDTO.builder()
                         .id(order.getId())
                         .orderDate(order.getOrderDate())
                         .status(order.getStatus())
-                        .listOrderItems(listOrderItemOutputDto)
+                        .listOrderItems(listOrderItemDTO)
                         .build();
-                listOrder.add(orderDTO);
+            }).collect(Collectors.toList());
 
-            }
-            return listOrder;
+            return new PageImpl<>(listOrderDTO, pageable, orderPage.getTotalElements());
         } catch (Exception e) {
             System.out.println(e.getMessage());
-            return new ArrayList<>();
+            return Page.empty();
         }
     }
 
