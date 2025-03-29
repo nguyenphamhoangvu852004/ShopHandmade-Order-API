@@ -78,10 +78,7 @@ public class OrderController {
         Pageable pageable = PageRequest.of(page, size);
 
         Page<GetAllOrderOutputDTO> listOrder = this.orderService.getAllOrders(pageable);
-
-        for (GetAllOrderOutputDTO order : listOrder) {
-            System.out.println(order);
-        }
+        // Page<GetAllOrderOutputDTO> listOrder = null;
 
         if (listOrder == null || listOrder.isEmpty()) {
             return ResponseEntity.status(HttpStatusCode.valueOf(404)).body("List order is empty");

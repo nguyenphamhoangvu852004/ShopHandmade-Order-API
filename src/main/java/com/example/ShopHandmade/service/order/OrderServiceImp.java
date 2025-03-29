@@ -124,7 +124,7 @@ public class OrderServiceImp implements IOrderService {
                         .build());
             }
             if (listOrderDTO.isEmpty()) {
-                return null;
+                return new PageImpl<>(new ArrayList<>(), pageable, 0);
             } else {
                 return new PageImpl<>(listOrderDTO, pageable, this.orderRepository.count());
             }
