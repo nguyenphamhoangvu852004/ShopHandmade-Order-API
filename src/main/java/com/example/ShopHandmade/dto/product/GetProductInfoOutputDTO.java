@@ -2,9 +2,11 @@ package com.example.ShopHandmade.dto.product;
 
 import java.util.List;
 
+import lombok.Builder;
 import lombok.Data;
 
 @Data
+@Builder
 public class GetProductInfoOutputDTO {
     private Long id;
     private String name;
@@ -15,6 +17,7 @@ public class GetProductInfoOutputDTO {
     private List<ImageDTO> images;
 
     @Data
+    @Builder
     public static class InventoryDTO {
         private Long id;
         private Integer stock;
@@ -23,10 +26,10 @@ public class GetProductInfoOutputDTO {
     }
 
     @Data
+    @Builder
     public static class ImageDTO {
         private Long id;
         private String src;
-        private String alt;
         private Integer position;
     }
 }

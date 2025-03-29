@@ -2,6 +2,8 @@ package com.example.ShopHandmade.controller;
 
 import com.example.ShopHandmade.dto.order.CreateOrderInputDTO;
 import com.example.ShopHandmade.dto.order.GetAllOrderByAccountIdOutputDTO;
+import com.example.ShopHandmade.dto.order.GetAllOrderOutputDTO;
+import com.example.ShopHandmade.dto.order.GetDetailOrderOutputDTO;
 import com.example.ShopHandmade.dto.order.UpdateStatusOrderInputDTO;
 import com.example.ShopHandmade.service.order.IOrderService;
 
@@ -30,6 +32,7 @@ public class OrderController {
         this.orderService = orderService;
     }
 
+    // lấ tất cả order theo accountId
     @GetMapping("/api/order/{accountId}")
     public ResponseEntity<Page<GetAllOrderByAccountIdOutputDTO>> getAllOrderByAccountId(
             @PathVariable("accountId") short accountId,
@@ -41,6 +44,7 @@ public class OrderController {
         return ResponseEntity.ok(listOrder);
     }
 
+    // tạo order moi
     @PostMapping("/api/order/{accountId}")
     public ResponseEntity<String> createOrder(@PathVariable("accountId") short accountId,
             @RequestBody CreateOrderInputDTO createOrderInputDTO) {
@@ -51,6 +55,7 @@ public class OrderController {
         return ResponseEntity.badRequest().body(result);
     }
 
+    // cập nhật trạng thái đơn hàng
     @PostMapping("/api/order/status")
     public ResponseEntity<String> updateStatusOrderById(
             @RequestBody UpdateStatusOrderInputDTO updateStatusOrderInputDTO) {
@@ -65,4 +70,34 @@ public class OrderController {
         return ResponseEntity.badRequest().body(result);
     }
 
+    // lấy tất cả luôn
+    @GetMapping("/api/order")
+    public ResponseEntity<?> getAllOrder(@RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<GetAllOrderOutputDTO> listOrder = this.orderService.getAllOrders(pageable);
+
+        for (GetAllOrderOutputDTO order : listOrder) {
+            System.out.println(order);
+        }
+
+        if (listOrder.isEmpty() || listOrder == null) {
+            return ResponseEntity.status(HttpStatusCode.valueOf(404)).body("List order is empty");
+        }
+
+        return ResponseEntity.ok(listOrder);
+    }
+
+    // Lấy chi tiết 1 order
+    @GetMapping("/api/order/detail/{orderId}")
+    public ResponseEntity<GetDetailOrderOutputDTO> getDetailOrder(@PathVariable("orderId") short orderId) {
+        GetDetailOrderOutputDTO order = this.orderService.getDetailOrderByOrderId(orderId);
+
+        if (order == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+        return ResponseEntity.ok(order);
+    }
 }

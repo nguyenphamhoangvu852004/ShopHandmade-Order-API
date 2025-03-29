@@ -1,9 +1,13 @@
 package com.example.ShopHandmade.service.order;
 
+import com.example.ShopHandmade.dto.order.AccountOutputDTO;
 import com.example.ShopHandmade.dto.order.CreateOrderInputDTO;
 import com.example.ShopHandmade.dto.order.GetAllOrderByAccountIdOutputDTO;
+import com.example.ShopHandmade.dto.order.GetAllOrderOutputDTO;
+import com.example.ShopHandmade.dto.order.GetDetailOrderOutputDTO;
 import com.example.ShopHandmade.dto.orderItem.CreateOrderItemInputDTO;
 import com.example.ShopHandmade.dto.orderItem.GetAllOrderItemOutputDTO;
+import com.example.ShopHandmade.dto.orderItem.GetDetailOrderItemOutputDTO;
 import com.example.ShopHandmade.dto.product.GetProductInfoOutputDTO;
 import com.example.ShopHandmade.entity.OrderEntity;
 import com.example.ShopHandmade.entity.OrderItemEntity;
@@ -16,11 +20,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,6 +34,9 @@ public class OrderServiceImp implements IOrderService {
 
     @Value("${product.service.url}")
     private String productServiceUrl;
+    @Value("${account.service.url}")
+    private String accountServiceUrl;
+
     private RestTemplate restTemplate = new RestTemplate();
     private IOrderRepository orderRepository;
     private OrderRepositoryCus orderRepositoryCus;
@@ -43,6 +52,11 @@ public class OrderServiceImp implements IOrderService {
             Page<OrderEntity> orderPage = this.orderRepositoryCus.getAllOrdersByAccountId(userId, pageable);
 
             List<GetAllOrderByAccountIdOutputDTO> listOrderDTO = orderPage.getContent().stream().map(order -> {
+                ResponseEntity<AccountOutputDTO> accountResponse = restTemplate
+                        .getForEntity(accountServiceUrl + "/user-by?id=" + String.valueOf(userId),
+                                AccountOutputDTO.class);
+                AccountOutputDTO account = accountResponse.getBody();
+
                 List<GetAllOrderItemOutputDTO> listOrderItemDTO = order.getListOrderItems().stream()
                         .map(item -> {
                             ResponseEntity<GetProductInfoOutputDTO> response = restTemplate
@@ -53,6 +67,7 @@ public class OrderServiceImp implements IOrderService {
                                     .id(item.getId())
                                     .product(product)
                                     .quantity(item.getQuantity())
+                                    .totalPrice(product.getPrice() * item.getQuantity())
                                     .build();
                         })
                         .collect(Collectors.toList());
@@ -61,6 +76,11 @@ public class OrderServiceImp implements IOrderService {
                         .id(order.getId())
                         .orderDate(order.getOrderDate())
                         .status(order.getStatus())
+                        .address(order.getAddress())
+                        .account(account)
+                        .totalAmount(
+
+                                listOrderItemDTO.stream().mapToDouble(item -> item.getTotalPrice()).sum())
                         .listOrderItems(listOrderItemDTO)
                         .build();
             }).collect(Collectors.toList());
@@ -73,23 +93,59 @@ public class OrderServiceImp implements IOrderService {
     }
 
     @Override
-    public List<OrderEntity> getAllOrders() {
+    public Page<GetAllOrderOutputDTO> getAllOrders(Pageable pageable) {
         try {
-            List<OrderEntity> orders = this.orderRepository.findAll();
-            return orders;
+            List<OrderEntity> listOrder = this.orderRepository.findAll(pageable).getContent();
+            List<GetAllOrderOutputDTO> listOrderDTO = new ArrayList<>();
+            for (OrderEntity orderEntity : listOrder) {
+                List<GetAllOrderItemOutputDTO> listOrderItemDTO = orderEntity.getListOrderItems().stream()
+                        .map(item -> {
+                            ResponseEntity<GetProductInfoOutputDTO> response = restTemplate
+                                    .getForEntity(productServiceUrl + "/" + item.getProductId(),
+                                            GetProductInfoOutputDTO.class);
+                            GetProductInfoOutputDTO product = response.getBody();
+                            return GetAllOrderItemOutputDTO.builder()
+                                    .id(item.getId())
+                                    .product(product)
+                                    .totalPrice(product.getPrice() * item.getQuantity())
+                                    .quantity(item.getQuantity())
+                                    .build();
+                        })
+                        .collect(Collectors.toList());
+
+                listOrderDTO.add(GetAllOrderOutputDTO.builder()
+                        .id(orderEntity.getId())
+                        .orderDate(orderEntity.getOrderDate())
+                        .status(orderEntity.getStatus())
+                        .address(orderEntity.getAddress())
+                        .listOrderItems(listOrderItemDTO)
+                        .totalAmount(
+                                listOrderItemDTO.stream().mapToDouble(item -> item.getTotalPrice()).sum())
+                        .build());
+            }
+            if (listOrderDTO.isEmpty()) {
+                return null;
+            } else {
+                return new PageImpl<>(listOrderDTO, pageable, this.orderRepository.count());
+            }
         } catch (Exception e) {
             System.out.println(e.getMessage());
-            return new ArrayList<>();
+            return null;
         }
+
     }
 
     @Override
     public OrderEntity getOrderById(short orderId) {
         try {
             OrderEntity order = this.orderRepository.findById(orderId).get();
+            if (order == null) {
+                return null;
+            }
             return order;
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            org.slf4j.Logger logger = LoggerFactory.getLogger(OrderServiceImp.class);
+            logger.error(e.getMessage());
             return null;
         }
     }
@@ -103,6 +159,7 @@ public class OrderServiceImp implements IOrderService {
             OrderEntity newOrder = OrderEntity.builder()
                     .accountId(accountId)
                     .orderDate(LocalDateTime.now())
+                    .address(order.getAddress())
                     .status(ORDER_STATUS.PENDING)
                     .build();
 
@@ -168,6 +225,46 @@ public class OrderServiceImp implements IOrderService {
         } catch (Exception e) {
             return e.getMessage();
         }
+    }
+
+    @Override
+    public GetDetailOrderOutputDTO getDetailOrderByOrderId(short orderId) {
+        OrderEntity order = this.orderRepository.findById(orderId).get();
+
+        if (order == null) {
+            return null;
+        }
+
+        GetDetailOrderOutputDTO orderDTO = GetDetailOrderOutputDTO.builder()
+                .id(orderId)
+                .orderDate(order.getOrderDate())
+                .status(order.getStatus())
+                .address(order.getAddress())
+                .listDetailOrderItem(new ArrayList<>())
+                .totalAmount(0.0)
+                .build();
+
+        List<GetDetailOrderItemOutputDTO> listOrderItem = order.getListOrderItems().stream()
+                .map(
+                        item -> {
+                            ResponseEntity<GetProductInfoOutputDTO> response = restTemplate
+                                    .getForEntity(productServiceUrl + "/" + item.getProductId(),
+                                            GetProductInfoOutputDTO.class);
+                            GetProductInfoOutputDTO product = response.getBody();
+                            return GetDetailOrderItemOutputDTO.builder()
+                                    .id(item.getId())
+                                    .product(product)
+                                    .quantity(item.getQuantity())
+                                    .totalPrice(product.getPrice() * item.getQuantity())
+                                    .build();
+                        })
+                .collect(Collectors.toList());
+
+        orderDTO.setListDetailOrderItem(listOrderItem);
+
+        orderDTO.setTotalAmount(listOrderItem.stream().mapToDouble(item -> item.getTotalPrice()).sum());
+
+        return orderDTO;
     }
 
 }

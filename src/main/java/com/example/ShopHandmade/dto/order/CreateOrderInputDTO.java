@@ -13,5 +13,6 @@ import lombok.*;
 @NoArgsConstructor
 @ToString
 public class CreateOrderInputDTO {
+    private String address;
     private List<CreateOrderItemInputDTO> listOrderItem;
 }

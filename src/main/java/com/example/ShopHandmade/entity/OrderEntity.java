@@ -30,15 +30,19 @@ public class OrderEntity {
     @Column(name = "status", columnDefinition = "VARCHAR(10)", updatable = true, nullable = false)
     private String status;
 
+    @Column(name = "address", nullable = false)
+    private String address;
+
+    @Column(name = "phone_number",nullable = false)
+    private String phoneNumber;
+
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private List<OrderItemEntity> listOrderItems;
-    
+
     public static class ORDER_STATUS {
         public static final String PENDING = "PENDING";
         public static final String DELIVERED = "DELIVERED";
         public static final String CANCELLED = "CANCELLED";
     }
 }
-
-

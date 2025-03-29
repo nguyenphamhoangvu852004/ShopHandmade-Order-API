@@ -1,25 +1,21 @@
 package com.example.ShopHandmade.dto.order;
 
-import lombok.*;
-
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
 import com.example.ShopHandmade.dto.orderItem.GetAllOrderItemOutputDTO;
 
-@Getter
-@Setter
+import lombok.Builder;
+import lombok.Data;
+
+@Data
 @Builder
-@AllArgsConstructor
-@NoArgsConstructor
-@ToString
-public class GetAllOrderByAccountIdOutputDTO {
+public class GetAllOrderOutputDTO {
     private short id;
-    private AccountOutputDTO account;
     private String status;
     private LocalDateTime orderDate;
     private String address;
     private List<GetAllOrderItemOutputDTO> listOrderItems;
     private Double totalAmount;
-
 }
