@@ -33,8 +33,6 @@ public class OrderEntity {
     @Column(name = "address", nullable = false)
     private String address;
 
-    @Column(name = "phone_number",nullable = false)
-    private String phoneNumber;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.CASCADE)
