@@ -83,7 +83,7 @@ public class OrderController {
             System.out.println(order);
         }
 
-        if (listOrder.isEmpty() || listOrder == null) {
+        if (listOrder == null || listOrder.isEmpty()) {
             return ResponseEntity.status(HttpStatusCode.valueOf(404)).body("List order is empty");
         }
 
