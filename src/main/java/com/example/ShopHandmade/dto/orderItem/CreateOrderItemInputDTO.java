@@ -10,5 +10,5 @@ import lombok.*;
 @ToString
 public class CreateOrderItemInputDTO {
     private short productId;
-    private int quantity;      
+    private int quantity;
 }

@@ -2,6 +2,7 @@ package com.example.ShopHandmade.service.order;
 
 import com.example.ShopHandmade.dto.order.AccountOutputDTO;
 import com.example.ShopHandmade.dto.order.CreateOrderInputDTO;
+import com.example.ShopHandmade.dto.order.DeleteOrderOutputDTO;
 import com.example.ShopHandmade.dto.order.GetAllOrderByAccountIdOutputDTO;
 import com.example.ShopHandmade.dto.order.GetAllOrderOutputDTO;
 import com.example.ShopHandmade.dto.order.GetDetailOrderOutputDTO;
@@ -26,7 +27,6 @@ import org.springframework.beans.factory.annotation.Value;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 @Service
@@ -69,9 +69,10 @@ public class OrderServiceImp implements IOrderService {
                                     .quantity(item.getQuantity())
                                     .totalPrice(product.getPrice() * item.getQuantity())
                                     .build();
-                        })
-                        .collect(Collectors.toList());
 
+                        })
+
+                        .collect(Collectors.toList());
                 return GetAllOrderByAccountIdOutputDTO.builder()
                         .id(order.getId())
                         .orderDate(order.getOrderDate())
@@ -201,11 +202,13 @@ public class OrderServiceImp implements IOrderService {
     }
 
     @Override
-    public void deleteOrder(short orderId) {
+    public DeleteOrderOutputDTO deleteOrder(short orderId) {
         try {
             this.orderRepository.deleteById(orderId);
+            return new DeleteOrderOutputDTO("Deleted");
         } catch (Exception e) {
             System.out.println(e.getMessage());
+            return new DeleteOrderOutputDTO("Failed");
         }
     }
 

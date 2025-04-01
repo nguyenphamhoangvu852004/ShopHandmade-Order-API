@@ -1,6 +1,7 @@
 package com.example.ShopHandmade.service.order;
 
 import com.example.ShopHandmade.dto.order.CreateOrderInputDTO;
+import com.example.ShopHandmade.dto.order.DeleteOrderOutputDTO;
 import com.example.ShopHandmade.dto.order.GetAllOrderByAccountIdOutputDTO;
 import com.example.ShopHandmade.dto.order.GetAllOrderOutputDTO;
 import com.example.ShopHandmade.dto.order.GetDetailOrderOutputDTO;
@@ -20,7 +21,7 @@ public interface IOrderService {
 
     OrderEntity updateOrder(OrderEntity order);
 
-    void deleteOrder(short orderId);
+    DeleteOrderOutputDTO deleteOrder(short orderId);
 
     boolean isOrderExist(short orderId);
 
